@@ -32,29 +32,85 @@ const packageSchema = new mongoose.Schema({
     required: true,
   },
 
-  price: {
+  // DURACIÓN
+  days: {
     type: Number,
     required: true,
   },
+
+  nights: {
+    type: Number,
+    required: true,
+  },
+
+  // MONEDA
+  currency: {
+    type: String,
+    enum: ['ARS', 'USD'],
+    default: 'ARS',
+  },
+
+
+  // TRANSPORTE
+  transport: {
+    type: {
+      type: String,
+      enum: ['bus', 'plane'],
+      required: true,
+    },
+
+    category: {
+      type: String,
+      enum: [
+        'semi-cama',
+        'cama',
+        'semi-cama/cama',
+        'economy',
+        'premium economy',
+        'business'
+      ],
+      required: true
+    }
+
+  },
+
+  // CIRCUITOS / PLANES
+  circuits: [
+    {
+      title: {
+        type: String,
+        required: true,
+      },
+
+      description: {
+        type: String,
+      },
+
+      includes: [
+        {
+          type: String,
+        },
+      ],
+
+      excludes: [
+        {
+          type: String,
+        },
+      ],
+
+      price: {
+        type: Number,
+      },
+
+      currency: {
+        type: String,
+        enum: ['ARS', 'USD'],
+        default: 'ARS',
+      },
+    },
+  ],
 
   images: [
-    {
-      type: String,
-    },
-  ],
-
-  duration: {
-    type: Number,
-    required: true,
-  },
-
-  includes: [
-    {
-      type: String,
-    },
-  ],
-
-  excludes: [
     {
       type: String,
     },

@@ -12,12 +12,10 @@ const getPackages = async (req, res) => {
 
     const query = {}
 
-    // DESTACADOS
     if (featured === 'true') {
       query.featured = true
     }
 
-    // CATEGORIA
     if (category) {
       query.category = category
     }
@@ -109,13 +107,20 @@ const createPackage = async (req, res) => {
       destination,
       category,
       description,
-      price,
+
+      days,
+      nights,
+
+      transport,
+
       images,
-      duration,
-      includes,
-      excludes,
+
+      circuits,
+
       featured,
+
       availableDates
+
     } = req.body
 
     const slug = title
@@ -126,23 +131,26 @@ const createPackage = async (req, res) => {
     const pkg = await Package.create({
 
       title,
+
       slug,
 
       origin,
+
       destination,
+
       category,
 
       description,
 
-      price,
+      days,
+
+      nights,
+
+      transport,
 
       images,
 
-      duration,
-
-      includes,
-
-      excludes,
+      circuits,
 
       featured,
 
@@ -153,6 +161,8 @@ const createPackage = async (req, res) => {
     res.status(201).json(pkg)
 
   } catch (error) {
+
+    console.log(error)
 
     res.status(500).json({
       message: error.message
@@ -179,7 +189,8 @@ const updatePackage = async (req, res) => {
 
     }
 
-    pkg.title = req.body.title || pkg.title
+    pkg.title =
+      req.body.title || pkg.title
 
     pkg.slug = req.body.title
       ? req.body.title
@@ -188,7 +199,8 @@ const updatePackage = async (req, res) => {
           .replace(/[^\w-]+/g, '')
       : pkg.slug
 
-    pkg.origin = req.body.origin || pkg.origin
+    pkg.origin =
+      req.body.origin || pkg.origin
 
     pkg.destination =
       req.body.destination || pkg.destination
@@ -199,20 +211,20 @@ const updatePackage = async (req, res) => {
     pkg.description =
       req.body.description || pkg.description
 
-    pkg.price =
-      req.body.price || pkg.price
+    pkg.days =
+      req.body.days || pkg.days
+
+    pkg.nights =
+      req.body.nights || pkg.nights
+
+    pkg.transport =
+      req.body.transport || pkg.transport
 
     pkg.images =
       req.body.images || pkg.images
 
-    pkg.duration =
-      req.body.duration || pkg.duration
-
-    pkg.includes =
-      req.body.includes || pkg.includes
-
-    pkg.excludes =
-      req.body.excludes || pkg.excludes
+    pkg.circuits =
+      req.body.circuits || pkg.circuits
 
     pkg.featured =
       req.body.featured !== undefined
@@ -236,6 +248,7 @@ const updatePackage = async (req, res) => {
 
   }
 }
+
 /* =========================
    DELETE PACKAGE
 ========================= */
@@ -313,11 +326,15 @@ const searchPackages = async (req, res) => {
 module.exports = {
 
   getPackages,
+
   getPackageBySlug,
+
   getPackageById,
 
   createPackage,
+
   updatePackage,
+
   deletePackage,
 
   searchPackages
