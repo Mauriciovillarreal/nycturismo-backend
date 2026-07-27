@@ -4,7 +4,7 @@ const packageSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
-    trim: true // Elimina espacios innecesarios al inicio y final
+    trim: true
   },
 
   slug: {
@@ -12,10 +12,9 @@ const packageSchema = new mongoose.Schema({
     required: true,
     unique: true,
     trim: true,
-    lowercase: true // Asegura que los slugs queden siempre en minúsculas
+    lowercase: true
   },
 
-  // NUEVO: Código del operador turistico de referencia interna
   operatorCode: {
     type: String,
     trim: true,
@@ -24,139 +23,154 @@ const packageSchema = new mongoose.Schema({
 
   origin: {
     type: String,
-    required: true,
+    required: true
   },
 
   destination: {
     type: String,
-    required: true,
+    required: true
   },
 
   category: {
     type: String,
-    required: true,
+    required: true
   },
 
   description: {
     type: String,
-    required: true,
+    required: true
   },
 
   days: {
     type: Number,
     required: true,
-    min: 1 // Evita números negativos o cero de forma nativa
+    min: 1
   },
 
   nights: {
     type: Number,
     required: true,
-    min: 0 // Permite 0 para escapadas de un solo día
+    min: 0
   },
 
   currency: {
     type: String,
     enum: ['ARS', 'USD'],
-    default: 'ARS',
+    default: 'ARS'
   },
 
-  // CORRECCIÓN ANTERIOR: Cambiamos 'type' por 'mode' para evitar conflictos con Mongoose
-transport: {
-  mode: {
-    type: String,
-    enum: ['bus', 'plane'],
-    required: true
-  },
-  category: {
-    type: String,
-    enum: [
-      'semi-cama',
-      'cama',
-      'semi-cama/cama',
-      'clase-economica',
-      'economica-premium',
-      'clase-ejecutiva',
-      'primera-clase'
-    ],
-    required: true,
-    validate: {
-      validator: function(value) {
-        const busCategories = ['semi-cama', 'cama', 'semi-cama/cama'];
-        const planeCategories = [
-          'clase-economica',
-          'economica-premium',
-          'clase-ejecutiva',
-          'primera-clase'
-        ];
-        
-        // Accedemos correctamente al objeto transport
-        const currentMode = this.transport?.mode;
-        
-        if (currentMode === 'bus') {
-          return busCategories.includes(value);
-        }
-        if (currentMode === 'plane') {
-          return planeCategories.includes(value);
-        }
-        return false;
-      },
-      message: 'La categoría de transporte no coincide con el medio de transporte seleccionado.'
+  transport: {
+    mode: {
+      type: String,
+      enum: ['bus', 'plane'],
+      required: true
+    },
+    category: {
+      type: String,
+      enum: [
+        'semi-cama',
+        'cama',
+        'semi-cama/cama',
+        'clase-economica',
+        'economica-premium',
+        'clase-ejecutiva',
+        'primera-clase'
+      ],
+      required: true
     }
-  }
-},
+  },
+
+  // ===========================
+  // CIRCUITOS
+  // ===========================
 
   circuits: [
     {
       title: {
         type: String,
-        required: true,
+        required: true
       },
+
       description: {
         type: String,
+        default: ''
       },
-      includes: [String], // Sintaxis más limpia para arrays de strings
+
+      includes: [String],
+
       excludes: [String],
-      price: {
-        type: Number,
-        min: 0
-      },
-      currency: {
-        type: String,
-        enum: ['ARS', 'USD'],
-        default: 'ARS',
-      },
-    },
+
+      // Opciones de alojamiento / régimen
+      options: [
+        {
+          name: {
+            type: String,
+            required: true
+          }
+        }
+      ],
+
+      // Hoteles del circuito
+      hotels: [
+        {
+          name: {
+            type: String,
+            required: true
+          },
+
+          image: {
+            type: String,
+            default: ''
+          },
+
+          stars: {
+            type: Number,
+            default: null
+          },
+
+          city: {
+            type: String,
+            default: ''
+          },
+
+          // Fechas disponibles para ese hotel
+          departures: [
+            {
+              date: {
+                type: Date,
+                required: true
+              },
+
+              prices: [
+                {
+                  option: {
+                    type: String,
+                    required: true
+                  },
+
+                  amount: {
+                    type: Number,
+                    required: true,
+                    min: 0
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   ],
 
-  images: [String], // Sintaxis limpia para arrays de strings
+  images: [String],
 
   featured: {
     type: Boolean,
-    default: false,
-  },
-
-  // FECHAS DISPONIBLES + HOTEL + MINIATURA (ACTUALIZADO)
-  availableDates: [
-    {
-      date: {
-        type: Date,
-        required: true,
-      },
-      hotel: {
-        type: String,
-        required: true,
-      },
-      // NUEVO: Guarda la URL de la foto miniatura del hotel asignado
-      hotelImage: {
-        type: String,
-        trim: true,
-        default: ''
-      },
-    },
-  ],
+    default: false
+  }
 
 }, {
-  timestamps: true,
+  timestamps: true
 })
 
 module.exports = mongoose.model('Package', packageSchema)
