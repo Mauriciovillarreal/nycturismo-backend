@@ -4,21 +4,6 @@ const Package = require('../models/Package')
    GET ALL PACKAGES
 ========================= */
 const getPackages = async (req, res) => {
-  const timestamp = new Date().toISOString()
-  console.log('==========================')
-  console.log('GET ALL PACKAGES - INICIO')
-  console.log(`Fecha: ${timestamp}`)
-  console.log(`Método: ${req.method}`)
-  console.log(`Ruta: ${req.originalUrl || req.url}`)
-  console.log(`IP: ${req.ip || req.connection.remoteAddress}`)
-  console.log(`User Agent: ${req.get('User-Agent')}`)
-  console.log('Usuario (req.user):', JSON.stringify(req.user, null, 2))
-  console.log('Session (req.session):', JSON.stringify(req.session, null, 2))
-  console.log('Params:', JSON.stringify(req.params, null, 2))
-  console.log('Query:', JSON.stringify(req.query, null, 2))
-  console.log('Body:', JSON.stringify(req.body, null, 2))
-  console.log('==========================')
-
   try {
     const { featured, category } = req.query
     const query = {}
@@ -32,23 +17,10 @@ const getPackages = async (req, res) => {
     }
 
     const packages = await Package.find(query)
-
-    console.log('--- GET ALL PACKAGES SUCCESS ---')
-    console.log(`Acción realizada: Obtener todos los paquetes`)
-    console.log(`Cantidad encontrada: ${packages.length}`)
-    console.log(`Usuario que realizó la acción: ${req.user ? req.user.id || req.user._id || req.user.email : 'Anónimo'}`)
-    console.log('----------------------------------')
-
+    console.log(`📦 Se consultaron todos los paquetes (${packages.length} encontrados)`)
     res.json(packages)
   } catch (error) {
-    console.error('==========================')
-    console.error('ERROR EN GET ALL PACKAGES')
-    console.error(`Name: ${error.name}`)
-    console.error(`Message: ${error.message}`)
-    console.error(`Code: ${error.code || 'N/A'}`)
-    console.error(`Stack: ${error.stack}`)
-    console.error('==========================')
-
+    console.error(`❌ Error al obtener paquetes: ${error.message}`)
     res.status(500).json({
       message: error.message
     })
@@ -59,52 +31,22 @@ const getPackages = async (req, res) => {
    GET PACKAGE BY SLUG
 ========================= */
 const getPackageBySlug = async (req, res) => {
-  const timestamp = new Date().toISOString()
-  console.log('==========================')
-  console.log('GET PACKAGE BY SLUG - INICIO')
-  console.log(`Fecha: ${timestamp}`)
-  console.log(`Método: ${req.method}`)
-  console.log(`Ruta: ${req.originalUrl || req.url}`)
-  console.log(`IP: ${req.ip || req.connection.remoteAddress}`)
-  console.log(`User Agent: ${req.get('User-Agent')}`)
-  console.log('Usuario (req.user):', JSON.stringify(req.user, null, 2))
-  console.log('Session (req.session):', JSON.stringify(req.session, null, 2))
-  console.log('Params:', JSON.stringify(req.params, null, 2))
-  console.log('Query:', JSON.stringify(req.query, null, 2))
-  console.log('Body:', JSON.stringify(req.body, null, 2))
-  console.log('==========================')
-
   try {
     const pkg = await Package.findOne({
       slug: req.params.slug
     })
 
     if (!pkg) {
-      console.log('--- GET PACKAGE BY SLUG NOT FOUND ---')
-      console.log(`Slug buscado: ${req.params.slug}`)
-      console.log('--------------------------------------')
+      console.log(`⚠️ Paquete no encontrado por slug: "${req.params.slug}"`)
       return res.status(404).json({
         message: 'Package not found'
       })
     }
 
-    console.log('--- GET PACKAGE BY SLUG SUCCESS ---')
-    console.log(`Acción realizada: Obtener paquete por slug`)
-    console.log(`ID: ${pkg._id}`)
-    console.log(`Título: ${pkg.title}`)
-    console.log(`Usuario que realizó la acción: ${req.user ? req.user.id || req.user._id || req.user.email : 'Anónimo'}`)
-    console.log('------------------------------------')
-
+    console.log(`📦 Se consultó el paquete: "${pkg.title}"`)
     res.json(pkg)
   } catch (error) {
-    console.error('==========================')
-    console.error('ERROR EN GET PACKAGE BY SLUG')
-    console.error(`Name: ${error.name}`)
-    console.error(`Message: ${error.message}`)
-    console.error(`Code: ${error.code || 'N/A'}`)
-    console.error(`Stack: ${error.stack}`)
-    console.error('==========================')
-
+    console.error(`❌ Error al obtener paquete por slug (${req.params.slug}): ${error.message}`)
     res.status(500).json({
       message: error.message
     })
@@ -115,50 +57,20 @@ const getPackageBySlug = async (req, res) => {
    GET PACKAGE BY ID
 ========================= */
 const getPackageById = async (req, res) => {
-  const timestamp = new Date().toISOString()
-  console.log('==========================')
-  console.log('GET PACKAGE BY ID - INICIO')
-  console.log(`Fecha: ${timestamp}`)
-  console.log(`Método: ${req.method}`)
-  console.log(`Ruta: ${req.originalUrl || req.url}`)
-  console.log(`IP: ${req.ip || req.connection.remoteAddress}`)
-  console.log(`User Agent: ${req.get('User-Agent')}`)
-  console.log('Usuario (req.user):', JSON.stringify(req.user, null, 2))
-  console.log('Session (req.session):', JSON.stringify(req.session, null, 2))
-  console.log('Params:', JSON.stringify(req.params, null, 2))
-  console.log('Query:', JSON.stringify(req.query, null, 2))
-  console.log('Body:', JSON.stringify(req.body, null, 2))
-  console.log('==========================')
-
   try {
     const pkg = await Package.findById(req.params.id)
 
     if (!pkg) {
-      console.log('--- GET PACKAGE BY ID NOT FOUND ---')
-      console.log(`ID buscado: ${req.params.id}`)
-      console.log('-----------------------------------')
+      console.log(`⚠️ Paquete no encontrado por ID: ${req.params.id}`)
       return res.status(404).json({
         message: 'Paquete no encontrado'
       })
     }
 
-    console.log('--- GET PACKAGE BY ID SUCCESS ---')
-    console.log(`Acción realizada: Obtener paquete por ID`)
-    console.log(`ID: ${pkg._id}`)
-    console.log(`Título: ${pkg.title}`)
-    console.log(`Usuario que realizó la acción: ${req.user ? req.user.id || req.user._id || req.user.email : 'Anónimo'}`)
-    console.log('---------------------------------')
-
+    console.log(`📦 Se consultó el paquete: "${pkg.title}"`)
     res.json(pkg)
   } catch (error) {
-    console.error('==========================')
-    console.error('ERROR EN GET PACKAGE BY ID')
-    console.error(`Name: ${error.name}`)
-    console.error(`Message: ${error.message}`)
-    console.error(`Code: ${error.code || 'N/A'}`)
-    console.error(`Stack: ${error.stack}`)
-    console.error('==========================')
-
+    console.error(`❌ Error al obtener paquete por ID (${req.params.id}): ${error.message}`)
     res.status(500).json({
       message: error.message
     })
@@ -166,24 +78,9 @@ const getPackageById = async (req, res) => {
 }
 
 /* =========================
-   CREATE PACKAGE (ACTUALIZADO)
+   CREATE PACKAGE
 ========================= */
 const createPackage = async (req, res) => {
-  const timestamp = new Date().toISOString()
-  console.log('==========================')
-  console.log('CREATE PACKAGE - INICIO')
-  console.log(`Fecha: ${timestamp}`)
-  console.log(`Método: ${req.method}`)
-  console.log(`Ruta: ${req.originalUrl || req.url}`)
-  console.log(`IP: ${req.ip || req.connection.remoteAddress}`)
-  console.log(`User Agent: ${req.get('User-Agent')}`)
-  console.log('Usuario (req.user):', JSON.stringify(req.user, null, 2))
-  console.log('Session (req.session):', JSON.stringify(req.session, null, 2))
-  console.log('Params:', JSON.stringify(req.params, null, 2))
-  console.log('Query:', JSON.stringify(req.query, null, 2))
-  console.log('Body:', JSON.stringify(req.body, null, 2))
-  console.log('==========================')
-
   try {
     const {
       title,
@@ -231,23 +128,10 @@ const createPackage = async (req, res) => {
       availableDates: formattedDates
     })
 
-    console.log('--- CREATE PACKAGE SUCCESS ---')
-    console.log(`Acción realizada: Paquete creado correctamente`)
-    console.log(`ID: ${pkg._id}`)
-    console.log(`Título: ${pkg.title}`)
-    console.log(`Usuario: ${req.user ? req.user.id || req.user._id || req.user.email : 'N/A (sin auth context)'}`)
-    console.log('------------------------------')
-
+    console.log(`✅ Se agregó el paquete "${pkg.title}"`)
     res.status(201).json(pkg)
   } catch (error) {
-    console.error('==========================')
-    console.error('ERROR EN CREATE PACKAGE')
-    console.error(`Name: ${error.name}`)
-    console.error(`Message: ${error.message}`)
-    console.error(`Code: ${error.code || 'N/A'}`)
-    console.error(`Stack: ${error.stack}`)
-    console.error('==========================')
-
+    console.error(`❌ Error al crear paquete "${req.body.title || 'sin título'}": ${error.message}`)
     res.status(500).json({
       message: error.message
     })
@@ -255,31 +139,14 @@ const createPackage = async (req, res) => {
 }
 
 /* =========================
-   UPDATE PACKAGE (ACTUALIZADO)
+   UPDATE PACKAGE
 ========================= */
 const updatePackage = async (req, res) => {
-  const timestamp = new Date().toISOString()
-  console.log('==========================')
-  console.log('UPDATE PACKAGE - INICIO')
-  console.log(`Fecha: ${timestamp}`)
-  console.log(`Método: ${req.method}`)
-  console.log(`Ruta: ${req.originalUrl || req.url}`)
-  console.log(`IP: ${req.ip || req.connection.remoteAddress}`)
-  console.log(`User Agent: ${req.get('User-Agent')}`)
-  console.log('Usuario (req.user):', JSON.stringify(req.user, null, 2))
-  console.log('Session (req.session):', JSON.stringify(req.session, null, 2))
-  console.log('Params:', JSON.stringify(req.params, null, 2))
-  console.log('Query:', JSON.stringify(req.query, null, 2))
-  console.log('Body:', JSON.stringify(req.body, null, 2))
-  console.log('==========================')
-
   try {
     const pkg = await Package.findById(req.params.id)
 
     if (!pkg) {
-      console.log('--- UPDATE PACKAGE NOT FOUND ---')
-      console.log(`ID buscado: ${req.params.id}`)
-      console.log('--------------------------------')
+      console.log(`⚠️ No se pudo editar. Paquete no encontrado ID: ${req.params.id}`)
       return res.status(404).json({
         message: 'Package not found'
       })
@@ -322,24 +189,10 @@ const updatePackage = async (req, res) => {
     }
 
     const updatedPkg = await pkg.save()
-
-    console.log('--- UPDATE PACKAGE SUCCESS ---')
-    console.log(`Acción realizada: Paquete actualizado correctamente`)
-    console.log(`ID: ${updatedPkg._id}`)
-    console.log(`Título: ${updatedPkg.title}`)
-    console.log(`Usuario: ${req.user ? req.user.id || req.user._id || req.user.email : 'N/A (sin auth context)'}`)
-    console.log('------------------------------')
-
+    console.log(`✏️ Se editó el paquete "${updatedPkg.title}"`)
     res.json(updatedPkg)
   } catch (error) {
-    console.error('==========================')
-    console.error('ERROR EN UPDATE PACKAGE')
-    console.error(`Name: ${error.name}`)
-    console.error(`Message: ${error.message}`)
-    console.error(`Code: ${error.code || 'N/A'}`)
-    console.error(`Stack: ${error.stack}`)
-    console.error('==========================')
-
+    console.error(`❌ Error al editar paquete ID ${req.params.id}: ${error.message}`)
     res.status(500).json({
       message: error.message
     })
@@ -350,57 +203,25 @@ const updatePackage = async (req, res) => {
    DELETE PACKAGE
 ========================= */
 const deletePackage = async (req, res) => {
-  const timestamp = new Date().toISOString()
-  console.log('==========================')
-  console.log('DELETE PACKAGE - INICIO')
-  console.log(`Fecha: ${timestamp}`)
-  console.log(`Método: ${req.method}`)
-  console.log(`Ruta: ${req.originalUrl || req.url}`)
-  console.log(`IP: ${req.ip || req.connection.remoteAddress}`)
-  console.log(`User Agent: ${req.get('User-Agent')}`)
-  console.log('Usuario (req.user):', JSON.stringify(req.user, null, 2))
-  console.log('Session (req.session):', JSON.stringify(req.session, null, 2))
-  console.log('Params:', JSON.stringify(req.params, null, 2))
-  console.log('Query:', JSON.stringify(req.query, null, 2))
-  console.log('Body:', JSON.stringify(req.body, null, 2))
-  console.log('==========================')
-
   try {
     const pkg = await Package.findById(req.params.id)
 
     if (!pkg) {
-      console.log('--- DELETE PACKAGE NOT FOUND ---')
-      console.log(`ID buscado: ${req.params.id}`)
-      console.log('--------------------------------')
+      console.log(`⚠️ No se pudo eliminar. Paquete no encontrado ID: ${req.params.id}`)
       return res.status(404).json({
         message: 'Package not found'
       })
     }
 
-    const packageId = pkg._id
-    const packageTitle = pkg.title
-
+    const deletedTitle = pkg.title
     await pkg.deleteOne()
 
-    console.log('--- DELETE PACKAGE SUCCESS ---')
-    console.log(`Acción realizada: Paquete eliminado correctamente`)
-    console.log(`ID: ${packageId}`)
-    console.log(`Título: ${packageTitle}`)
-    console.log(`Usuario: ${req.user ? req.user.id || req.user._id || req.user.email : 'N/A (sin auth context)'}`)
-    console.log('------------------------------')
-
+    console.log(`🗑️ Se eliminó el paquete "${deletedTitle}"`)
     res.json({
       message: 'Package removed'
     })
   } catch (error) {
-    console.error('==========================')
-    console.error('ERROR EN DELETE PACKAGE')
-    console.error(`Name: ${error.name}`)
-    console.error(`Message: ${error.message}`)
-    console.error(`Code: ${error.code || 'N/A'}`)
-    console.error(`Stack: ${error.stack}`)
-    console.error('==========================')
-
+    console.error(`❌ Error al eliminar paquete ID ${req.params.id}: ${error.message}`)
     res.status(500).json({
       message: error.message
     })
@@ -411,21 +232,6 @@ const deletePackage = async (req, res) => {
    SEARCH PACKAGES
 ========================= */
 const searchPackages = async (req, res) => {
-  const timestamp = new Date().toISOString()
-  console.log('==========================')
-  console.log('SEARCH PACKAGES - INICIO')
-  console.log(`Fecha: ${timestamp}`)
-  console.log(`Método: ${req.method}`)
-  console.log(`Ruta: ${req.originalUrl || req.url}`)
-  console.log(`IP: ${req.ip || req.connection.remoteAddress}`)
-  console.log(`User Agent: ${req.get('User-Agent')}`)
-  console.log('Usuario (req.user):', JSON.stringify(req.user, null, 2))
-  console.log('Session (req.session):', JSON.stringify(req.session, null, 2))
-  console.log('Params:', JSON.stringify(req.params, null, 2))
-  console.log('Query:', JSON.stringify(req.query, null, 2))
-  console.log('Body:', JSON.stringify(req.body, null, 2))
-  console.log('==========================')
-
   try {
     const { origin, destination, category } = req.query
     const filters = {}
@@ -443,24 +249,10 @@ const searchPackages = async (req, res) => {
     }
 
     const packages = await Package.find(filters)
-
-    console.log('--- SEARCH PACKAGES SUCCESS ---')
-    console.log(`Acción realizada: Búsqueda de paquetes`)
-    console.log(`Filtros aplicados: ${JSON.stringify(filters)}`)
-    console.log(`Resultados encontrados: ${packages.length}`)
-    console.log(`Usuario que realizó la acción: ${req.user ? req.user.id || req.user._id || req.user.email : 'Anónimo'}`)
-    console.log('--------------------------------')
-
+    console.log(`🔍 Se buscaron paquetes (${packages.length} resultados)`)
     res.json(packages)
   } catch (error) {
-    console.error('==========================')
-    console.error('ERROR EN SEARCH PACKAGES')
-    console.error(`Name: ${error.name}`)
-    console.error(`Message: ${error.message}`)
-    console.error(`Code: ${error.code || 'N/A'}`)
-    console.error(`Stack: ${error.stack}`)
-    console.error('==========================')
-
+    console.error(`❌ Error al buscar paquetes: ${error.message}`)
     res.status(500).json({
       message: error.message
     })
