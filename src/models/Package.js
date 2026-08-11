@@ -53,10 +53,24 @@ const packageSchema = new mongoose.Schema({
     min: 0
   },
 
-  currency: {
-    type: String,
-    enum: ['ARS', 'USD'],
-    default: 'ARS'
+  // ===========================
+  // MONEDAS Y COTIZACIÓN
+  // ===========================
+  // Define qué monedas admite este paquete
+  acceptedCurrencies: {
+    type: [{
+      type: String,
+      enum: ['ARS', 'USD']
+    }],
+    default: ['ARS'],
+    validate: [arrayMinLength, 'Debe incluir al menos una moneda']
+  },
+
+  // Cotización del dólar de referencia al momento de la carga (opcional)
+  exchangeRate: {
+    type: Number,
+    min: 0,
+    default: null
   },
 
   transport: {
@@ -83,7 +97,6 @@ const packageSchema = new mongoose.Schema({
   // ===========================
   // CIRCUITOS
   // ===========================
-
   circuits: [
     {
       title: {
@@ -100,7 +113,6 @@ const packageSchema = new mongoose.Schema({
 
       excludes: [String],
 
-      // Opciones de alojamiento / régimen
       options: [
         {
           name: {
@@ -110,7 +122,6 @@ const packageSchema = new mongoose.Schema({
         }
       ],
 
-      // Hoteles del circuito
       hotels: [
         {
           name: {
@@ -133,7 +144,6 @@ const packageSchema = new mongoose.Schema({
             default: ''
           },
 
-          // Fechas disponibles para ese hotel
           departures: [
             {
               date: {
@@ -141,17 +151,28 @@ const packageSchema = new mongoose.Schema({
                 required: true
               },
 
+              // ===========================
+              // PRECIOS MULTI-MONEDA
+              // ===========================
               prices: [
                 {
                   option: {
                     type: String,
-                    required: true
+                    required: true // Ej: "Doble", "Triple", "Pensión Completa"
                   },
 
-                  amount: {
-                    type: Number,
-                    required: true,
-                    min: 0
+                  // Estructura que soporta ambas monedas simultáneamente
+                  amounts: {
+                    ars: {
+                      type: Number,
+                      min: 0,
+                      default: null
+                    },
+                    usd: {
+                      type: Number,
+                      min: 0,
+                      default: null
+                    }
                   }
                 }
               ]
@@ -172,5 +193,10 @@ const packageSchema = new mongoose.Schema({
 }, {
   timestamps: true
 })
+
+// Validación auxiliar para array no vacío
+function arrayMinLength(val) {
+  return val.length > 0
+}
 
 module.exports = mongoose.model('Package', packageSchema)

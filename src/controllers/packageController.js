@@ -21,9 +21,7 @@ const getPackages = async (req, res) => {
     res.json(packages)
   } catch (error) {
     console.error(`❌ Error al obtener paquetes: ${error.message}`)
-    res.status(500).json({
-      message: error.message
-    })
+    res.status(500).json({ message: error.message })
   }
 }
 
@@ -32,24 +30,18 @@ const getPackages = async (req, res) => {
 ========================= */
 const getPackageBySlug = async (req, res) => {
   try {
-    const pkg = await Package.findOne({
-      slug: req.params.slug
-    })
+    const pkg = await Package.findOne({ slug: req.params.slug })
 
     if (!pkg) {
       console.log(`⚠️ Paquete no encontrado por slug: "${req.params.slug}"`)
-      return res.status(404).json({
-        message: 'Package not found'
-      })
+      return res.status(404).json({ message: 'Package not found' })
     }
 
     console.log(`📦 Se consultó el paquete: "${pkg.title}"`)
     res.json(pkg)
   } catch (error) {
     console.error(`❌ Error al obtener paquete por slug (${req.params.slug}): ${error.message}`)
-    res.status(500).json({
-      message: error.message
-    })
+    res.status(500).json({ message: error.message })
   }
 }
 
@@ -62,18 +54,14 @@ const getPackageById = async (req, res) => {
 
     if (!pkg) {
       console.log(`⚠️ Paquete no encontrado por ID: ${req.params.id}`)
-      return res.status(404).json({
-        message: 'Paquete no encontrado'
-      })
+      return res.status(404).json({ message: 'Paquete no encontrado' })
     }
 
     console.log(`📦 Se consultó el paquete: "${pkg.title}"`)
     res.json(pkg)
   } catch (error) {
     console.error(`❌ Error al obtener paquete por ID (${req.params.id}): ${error.message}`)
-    res.status(500).json({
-      message: error.message
-    })
+    res.status(500).json({ message: error.message })
   }
 }
 
@@ -92,6 +80,7 @@ const createPackage = async (req, res) => {
       days,
       nights,
       currency,
+      acceptedCurrencies, // 👈 Capturar array de monedas
       transport,
       images,
       circuits,
@@ -121,6 +110,7 @@ const createPackage = async (req, res) => {
       days,
       nights,
       currency,
+      acceptedCurrencies: acceptedCurrencies || (currency ? [currency] : ['ARS']), // 👈 Guardar monedas
       transport,
       images,
       circuits,
@@ -132,9 +122,7 @@ const createPackage = async (req, res) => {
     res.status(201).json(pkg)
   } catch (error) {
     console.error(`❌ Error al crear paquete "${req.body.title || 'sin título'}": ${error.message}`)
-    res.status(500).json({
-      message: error.message
-    })
+    res.status(500).json({ message: error.message })
   }
 }
 
@@ -147,9 +135,7 @@ const updatePackage = async (req, res) => {
 
     if (!pkg) {
       console.log(`⚠️ No se pudo editar. Paquete no encontrado ID: ${req.params.id}`)
-      return res.status(404).json({
-        message: 'Package not found'
-      })
+      return res.status(404).json({ message: 'Package not found' })
     }
 
     pkg.title = req.body.title || pkg.title
@@ -172,6 +158,12 @@ const updatePackage = async (req, res) => {
     pkg.days = req.body.days || pkg.days
     pkg.nights = req.body.nights || pkg.nights
     pkg.currency = req.body.currency || pkg.currency
+
+    // 👈 Actualizar array de monedas aceptadas
+    if (req.body.acceptedCurrencies !== undefined) {
+      pkg.acceptedCurrencies = req.body.acceptedCurrencies
+    }
+
     pkg.transport = req.body.transport || pkg.transport
     pkg.images = req.body.images || pkg.images
     pkg.circuits = req.body.circuits || pkg.circuits
@@ -193,9 +185,7 @@ const updatePackage = async (req, res) => {
     res.json(updatedPkg)
   } catch (error) {
     console.error(`❌ Error al editar paquete ID ${req.params.id}: ${error.message}`)
-    res.status(500).json({
-      message: error.message
-    })
+    res.status(500).json({ message: error.message })
   }
 }
 
@@ -208,23 +198,17 @@ const deletePackage = async (req, res) => {
 
     if (!pkg) {
       console.log(`⚠️ No se pudo eliminar. Paquete no encontrado ID: ${req.params.id}`)
-      return res.status(404).json({
-        message: 'Package not found'
-      })
+      return res.status(404).json({ message: 'Package not found' })
     }
 
     const deletedTitle = pkg.title
     await pkg.deleteOne()
 
     console.log(`🗑️ Se eliminó el paquete "${deletedTitle}"`)
-    res.json({
-      message: 'Package removed'
-    })
+    res.json({ message: 'Package removed' })
   } catch (error) {
     console.error(`❌ Error al eliminar paquete ID ${req.params.id}: ${error.message}`)
-    res.status(500).json({
-      message: error.message
-    })
+    res.status(500).json({ message: error.message })
   }
 }
 
@@ -236,26 +220,16 @@ const searchPackages = async (req, res) => {
     const { origin, destination, category } = req.query
     const filters = {}
 
-    if (origin) {
-      filters.origin = origin
-    }
-
-    if (destination) {
-      filters.destination = destination
-    }
-
-    if (category) {
-      filters.category = category
-    }
+    if (origin) filters.origin = origin
+    if (destination) filters.destination = destination
+    if (category) filters.category = category
 
     const packages = await Package.find(filters)
     console.log(`🔍 Se buscaron paquetes (${packages.length} resultados)`)
     res.json(packages)
   } catch (error) {
     console.error(`❌ Error al buscar paquetes: ${error.message}`)
-    res.status(500).json({
-      message: error.message
-    })
+    res.status(500).json({ message: error.message })
   }
 }
 
