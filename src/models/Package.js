@@ -30,11 +30,19 @@ const packageSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-
+  // ===========================
+  // CATEGORÍAS
+  // ===========================
   category: {
     type: String,
-    required: true
+    required: [true, 'La categoría principal es obligatoria'],
+    trim: true
   },
+
+  secondaryCategories: [{
+    type: String,
+    trim: true
+  }],
 
   description: {
     type: String,
@@ -56,7 +64,6 @@ const packageSchema = new mongoose.Schema({
   // ===========================
   // MONEDAS Y COTIZACIÓN
   // ===========================
-  // Define qué monedas admite este paquete
   acceptedCurrencies: {
     type: [{
       type: String,
@@ -66,7 +73,6 @@ const packageSchema = new mongoose.Schema({
     validate: [arrayMinLength, 'Debe incluir al menos una moneda']
   },
 
-  // Cotización del dólar de referencia al momento de la carga (opcional)
   exchangeRate: {
     type: Number,
     min: 0,
@@ -151,17 +157,13 @@ const packageSchema = new mongoose.Schema({
                 required: true
               },
 
-              // ===========================
-              // PRECIOS MULTI-MONEDA
-              // ===========================
               prices: [
                 {
                   option: {
                     type: String,
-                    required: true // Ej: "Doble", "Triple", "Pensión Completa"
+                    required: true
                   },
 
-                  // Estructura que soporta ambas monedas simultáneamente
                   amounts: {
                     ars: {
                       type: Number,
@@ -194,7 +196,8 @@ const packageSchema = new mongoose.Schema({
   timestamps: true
 })
 
-// Validación auxiliar para array no vacío
+packageSchema.index({ category: 1, secondaryCategories: 1 })
+
 function arrayMinLength(val) {
   return val.length > 0
 }

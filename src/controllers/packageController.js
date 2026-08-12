@@ -12,8 +12,12 @@ const getPackages = async (req, res) => {
       query.featured = true
     }
 
+    // Busca si 'category' coincide con la principal O está incluida en las secundarias
     if (category) {
-      query.category = category
+      query.$or = [
+        { category: category },
+        { secondaryCategories: category }
+      ]
     }
 
     const packages = await Package.find(query)
@@ -76,11 +80,12 @@ const createPackage = async (req, res) => {
       origin,
       destination,
       category,
+      secondaryCategories, // 👈 Capturar categorías secundarias
       description,
       days,
       nights,
       currency,
-      acceptedCurrencies, // 👈 Capturar array de monedas
+      acceptedCurrencies,
       transport,
       images,
       circuits,
@@ -106,11 +111,12 @@ const createPackage = async (req, res) => {
       origin,
       destination,
       category,
+      secondaryCategories: secondaryCategories || [], // 👈 Guardar categorías secundarias
       description,
       days,
       nights,
       currency,
-      acceptedCurrencies: acceptedCurrencies || (currency ? [currency] : ['ARS']), // 👈 Guardar monedas
+      acceptedCurrencies: acceptedCurrencies || (currency ? [currency] : ['ARS']),
       transport,
       images,
       circuits,
@@ -154,12 +160,17 @@ const updatePackage = async (req, res) => {
     pkg.origin = req.body.origin || pkg.origin
     pkg.destination = req.body.destination || pkg.destination
     pkg.category = req.body.category || pkg.category
+
+    // 👈 Actualizar array de categorías secundarias
+    if (req.body.secondaryCategories !== undefined) {
+      pkg.secondaryCategories = req.body.secondaryCategories
+    }
+
     pkg.description = req.body.description || pkg.description
     pkg.days = req.body.days || pkg.days
     pkg.nights = req.body.nights || pkg.nights
     pkg.currency = req.body.currency || pkg.currency
 
-    // 👈 Actualizar array de monedas aceptadas
     if (req.body.acceptedCurrencies !== undefined) {
       pkg.acceptedCurrencies = req.body.acceptedCurrencies
     }
@@ -222,7 +233,14 @@ const searchPackages = async (req, res) => {
 
     if (origin) filters.origin = origin
     if (destination) filters.destination = destination
-    if (category) filters.category = category
+
+    // Busca si 'category' coincide tanto en la principal como en las secundarias
+    if (category) {
+      filters.$or = [
+        { category: category },
+        { secondaryCategories: category }
+      ]
+    }
 
     const packages = await Package.find(filters)
     console.log(`🔍 Se buscaron paquetes (${packages.length} resultados)`)
