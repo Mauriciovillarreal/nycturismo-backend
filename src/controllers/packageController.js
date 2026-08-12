@@ -12,7 +12,6 @@ const getPackages = async (req, res) => {
       query.featured = true
     }
 
-    // Busca si 'category' coincide con la principal O está incluida en las secundarias
     if (category) {
       query.$or = [
         { category: category },
@@ -80,29 +79,23 @@ const createPackage = async (req, res) => {
       origin,
       destination,
       category,
-      secondaryCategories, // 👈 Capturar categorías secundarias
+      secondaryCategories,
       description,
       days,
       nights,
-      currency,
+      paymentMode,        // 👈 Nuevo campo recibido
       acceptedCurrencies,
+      exchangeRate,       // 👈 Nuevo campo opcional
       transport,
       images,
       circuits,
-      featured,
-      availableDates
+      featured
     } = req.body
 
     const slug = title
       .toLowerCase()
       .replace(/\s+/g, '-')
       .replace(/[^\w-]+/g, '')
-
-    const formattedDates = availableDates?.map(item => ({
-      date: item.date,
-      hotel: item.hotel,
-      hotelImage: item.hotelImage || ''
-    })) || []
 
     const pkg = await Package.create({
       title,
@@ -111,17 +104,17 @@ const createPackage = async (req, res) => {
       origin,
       destination,
       category,
-      secondaryCategories: secondaryCategories || [], // 👈 Guardar categorías secundarias
+      secondaryCategories: secondaryCategories || [],
       description,
       days,
       nights,
-      currency,
-      acceptedCurrencies: acceptedCurrencies || (currency ? [currency] : ['ARS']),
+      paymentMode: paymentMode || 'CHOICE', // 👈 Valor por defecto en caso de no enviar
+      acceptedCurrencies: acceptedCurrencies || ['ARS', 'USD'],
+      exchangeRate: exchangeRate || null,
       transport,
       images,
       circuits,
-      featured,
-      availableDates: formattedDates
+      featured
     })
 
     console.log(`✅ Se agregó el paquete "${pkg.title}"`)
@@ -161,7 +154,6 @@ const updatePackage = async (req, res) => {
     pkg.destination = req.body.destination || pkg.destination
     pkg.category = req.body.category || pkg.category
 
-    // 👈 Actualizar array de categorías secundarias
     if (req.body.secondaryCategories !== undefined) {
       pkg.secondaryCategories = req.body.secondaryCategories
     }
@@ -169,10 +161,16 @@ const updatePackage = async (req, res) => {
     pkg.description = req.body.description || pkg.description
     pkg.days = req.body.days || pkg.days
     pkg.nights = req.body.nights || pkg.nights
-    pkg.currency = req.body.currency || pkg.currency
+
+    // 👈 Actualización de modalidades de pago y monedas
+    pkg.paymentMode = req.body.paymentMode || pkg.paymentMode
 
     if (req.body.acceptedCurrencies !== undefined) {
       pkg.acceptedCurrencies = req.body.acceptedCurrencies
+    }
+
+    if (req.body.exchangeRate !== undefined) {
+      pkg.exchangeRate = req.body.exchangeRate
     }
 
     pkg.transport = req.body.transport || pkg.transport
@@ -182,14 +180,6 @@ const updatePackage = async (req, res) => {
     pkg.featured = req.body.featured !== undefined
       ? req.body.featured
       : pkg.featured
-
-    if (req.body.availableDates) {
-      pkg.availableDates = req.body.availableDates.map(item => ({
-        date: item.date,
-        hotel: item.hotel,
-        hotelImage: item.hotelImage || ''
-      }))
-    }
 
     const updatedPkg = await pkg.save()
     console.log(`✏️ Se editó el paquete "${updatedPkg.title}"`)
@@ -234,7 +224,6 @@ const searchPackages = async (req, res) => {
     if (origin) filters.origin = origin
     if (destination) filters.destination = destination
 
-    // Busca si 'category' coincide tanto en la principal como en las secundarias
     if (category) {
       filters.$or = [
         { category: category },

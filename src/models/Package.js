@@ -30,6 +30,7 @@ const packageSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+
   // ===========================
   // CATEGORÍAS
   // ===========================
@@ -62,14 +63,24 @@ const packageSchema = new mongoose.Schema({
   },
 
   // ===========================
-  // MONEDAS Y COTIZACIÓN
+  // MODALIDAD DE PAGO Y MONEDAS
   // ===========================
+  paymentMode: {
+    type: String,
+    enum: [
+      'SINGLE', // Solo se cobra en 1 moneda (ARS o USD)
+      'CHOICE', // El cliente elige pagar el 100% en ARS o el 100% en USD
+      'SPLIT'   // El paquete se cobra una parte en ARS Y otra parte en USD obligatoriamente
+    ],
+    default: 'CHOICE'
+  },
+
   acceptedCurrencies: {
     type: [{
       type: String,
       enum: ['ARS', 'USD']
     }],
-    default: ['ARS'],
+    default: ['ARS', 'USD'],
     validate: [arrayMinLength, 'Debe incluir al menos una moneda']
   },
 
@@ -164,6 +175,7 @@ const packageSchema = new mongoose.Schema({
                     required: true
                   },
 
+                  // Estructura refinada para soportar montos en ambas monedas
                   amounts: {
                     ars: {
                       type: Number,
